@@ -1,36 +1,36 @@
 # organisational unit for IT department
-dn: ou=IT,dc=netsupport,dc=dom
+dn: ou=IT,dc=correa,dc=local
 objectClass: organizationalUnit
 ou: IT
 
 # user: John Doe for unit IT department
-dn: uid=johndoe,ou=IT,dc=netsupport,dc=dom
+dn: uid=johndoe,ou=IT,dc=correa,dc=local
 objectClass: inetOrgPerson
 cn: John Doe
 sn: Doe
 uid: johndoe
-mail: johndoe@yourdomain.com
+mail: johndoe@correa.local
 userPassword: password123
 
 # user: Anna Meier for unit IT department
-dn: uid=anna.meier,ou=IT,dc=netsupport,dc=dom
+dn: uid=anna.meier,ou=IT,dc=correa,dc=local
 objectClass: inetOrgPerson
 cn: Anna Meier
 sn: Meier
 uid: anna.meier
-mail: anna.meier@yourdomain.com
+mail: anna.meier@correa.local
 userPassword: password456
 
 # organisational unit for marketing department
-dn: ou=Marketing,dc=netsupport,dc=dom
+dn: ou=Marketing,dc=correa,dc=local
 objectClass: organizationalUnit
 ou: Marketing
 
 # user: Peter Schmidt for the  der marketing department
-dn: uid=peter.schmidt,ou=Marketing,dc=netsupport,dc=dom
+dn: uid=peter.schmidt,ou=Marketing,dc=correa,dc=local
 objectClass: inetOrgPerson
 cn: Peter Schmidt
 sn: Schmidt
 uid: peter.schmidt
-mail: peter.schmidt@yourdomain.com
+mail: peter.schmidt@correa.local
 userPassword: password789

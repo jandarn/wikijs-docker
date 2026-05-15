@@ -47,11 +47,10 @@ DNS.2 = grafana.$DOMAIN
 EOL
 
 # sign the nginx certificate with the ca certificate
-openssl x509 -req -in "$CERT_FILES_PATH/nginx/$SSL_CERT_NAME.csr" -CA "$CERT_FILES_PATH/ca.crt" -CAkey "$CERT_FILES_PATH/ca.key" -CAcreateserial -out "$CERT_FILES_PATH/nginx/$SSL_CERT_NAME.crt" -days 3650 -sha256 -extfile "$CERT_FILES_PATH/nginx/$SSL_CERT_NAME.ext"
+openssl x509 -req -in "$CERT_FILES_PATH/nginx/$SSL_CERT_NAME.csr" -CA "$CERT_FILES_PATH/ca.crt" -CAkey "$CERT_FILES_PATH/ca.key" -CAcreateserial -out "$CERT_FILES_PATH/nginx/$SSL_CERT_NAME.crt" -days 398 -sha256 -extfile "$CERT_FILES_PATH/nginx/$SSL_CERT_NAME.ext"
 
 # copy the nginx certificate and key to the nginx ssl directory with the name ssl.crt
 cp "$CERT_FILES_PATH/nginx/$SSL_CERT_NAME.crt" "$NGINX_SSL_PATH/ssl.crt"
 cp "$CERT_FILES_PATH/nginx/$SSL_CERT_NAME.key" "$NGINX_SSL_PATH/ssl.key"
 
-# notice the user that the certificate has been generated, let them know to add the ca.crt to their trusted root certificate authorities, and that they can now access the wiki and grafana with HTTPS
 echo "Certificate generated successfully. Please add the $CERT_FILES_PATH/ca.crt file to your trusted root certificate authorities. You can now access the wiki and grafana with HTTPS."
