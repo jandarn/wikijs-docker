@@ -6,3 +6,4 @@ backups
 ldap/bootstrap.ldif
 nginx/conf.d/*
 nginx/ssl/*
+nginx/conf.d
