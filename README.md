@@ -1,15 +1,15 @@
 # wikijs-docker
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.11--alpine3.22-336791?logo=postgresql&logoColor=white)
-![Wiki.js](https://img.shields.io/badge/Wiki.js-2.5-1976D2)
-![NGINX](https://img.shields.io/badge/NGINX-stable--alpine-009639?logo=nginx&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.13--alpine3.23-336791?logo=postgresql&logoColor=white)
+![Wiki.js](https://img.shields.io/badge/Wiki.js-2.5.314-1976D2)
+![NGINX](https://img.shields.io/badge/NGINX-1.30.1--alpine3.23-009639?logo=nginx&logoColor=white)
 ![OpenLDAP](https://img.shields.io/badge/OpenLDAP-1.5.0-2E8B57)
-![phpLDAPadmin](https://img.shields.io/badge/phpLDAPadmin-latest-F98404)
-![Prometheus](https://img.shields.io/badge/Prometheus-latest-E6522C?logo=prometheus&logoColor=white)
-![Node Exporter](https://img.shields.io/badge/node--exporter-latest-555555)
-![cAdvisor](https://img.shields.io/badge/cAdvisor-latest-4285F4)
-![Postgres Exporter](https://img.shields.io/badge/postgres--exporter-latest-6E40C9)
-![NGINX Exporter](https://img.shields.io/badge/nginx--prometheus--exporter-latest-009639?logo=nginx&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-latest-F46800?logo=grafana&logoColor=white)
+![phpLDAPadmin](https://img.shields.io/badge/phpLDAPadmin-0.9.0-F98404)
+![Prometheus](https://img.shields.io/badge/Prometheus-v3.10.0-E6522C?logo=prometheus&logoColor=white)
+![Node Exporter](https://img.shields.io/badge/node--exporter-v1.11.1-555555)
+![cAdvisor](https://img.shields.io/badge/cAdvisor-v0.55.1-4285F4)
+![Postgres Exporter](https://img.shields.io/badge/postgres--exporter-v0.19.1-6E40C9)
+![NGINX Exporter](https://img.shields.io/badge/nginx--prometheus--exporter-1.5.1-009639?logo=nginx&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-13.0.1-F46800?logo=grafana&logoColor=white)
 
 Containerized documentation platform using Wiki.js, PostgreSQL, and NGINX. Includes HTTPS, LDAP authentication, monitoring with Prometheus and Grafana, and automated backups. Designed for secure, scalable deployment and reproducibility using Docker Compose.
 
