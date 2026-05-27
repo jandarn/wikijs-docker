@@ -87,6 +87,7 @@ elif [ -f "$SSL_CERT_FILE.crt" ]; then
 else
     echo "No SSL certificate found. Generating self-signed certificate..."
     bash $PROJECT_ROOT/scripts/generate-certs.sh
+    SSL_CERT_FILE="$SSL_CERT_FILE.crt"
 fi
 
 # check if the domain of the certificate matches the domain in the .env file, if not, generate a new certificate with the correct domain information
