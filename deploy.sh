@@ -144,7 +144,7 @@ echo -e '\n\033[1;32m_ _ _ _ _  _ _  _ ____    ___  ____ ____ _  _ ____ ____ \03
 echo -e '\033[1;32m| | | | |_/  |  | [__  __ |  \ |  | |    |_/  |___ |__/ \033[0m'
 echo -e '\033[1;32m|_|_| | | \_ | _| ___]    |__/ |__| |___ | \_ |___ |  \ \033[0m'
 echo "--------------------------------------------------"
-echo -e '\033[1;35m> https://github.com/onyxdream/wikijs-docker\033[0m'
+echo -e '\033[1;35m> https://github.com/jandarn/wikijs-docker\033[0m'
 echo -e '\n\033[1;32m[+] Deployment completed successfully.\033[0m'
 echo "- To undeploy, run 'deploy.sh down'."
 echo "--------------------------------------"
