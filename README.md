@@ -17,7 +17,7 @@ Containerized documentation platform using Wiki.js, PostgreSQL, and NGINX. Inclu
 ## Installation
 1. **Clone the repository**
 ```bash
-git clone https://github.com/onyxdream/wikijs-docker
+git clone https://github.com/jandarn/wikijs-docker
 cd wikijs-docker
 ```
 2. **Make deploy.sh executable**
@@ -121,7 +121,7 @@ LDAP_ADMIN_PASSWORD=change_me
 ```
 ## Authors
 
-- [@onyxdream](https://www.github.com/onyxdream)
+- [@onyxdream](https://www.github.com/jandarn)
 
 ## License
 
