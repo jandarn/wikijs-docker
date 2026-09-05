@@ -84,6 +84,8 @@ https://grafana.<your-domain>
 
 To bring the stack down: `./deploy.sh down`
 
+![Deploy](docs/img/deploy.png)
+
 ### Optional features
 
 **Local PostgreSQL** — set `LOCAL_DB=true` in `.env` to run PostgreSQL as a container within the stack. Otherwise, point the DB variables at an external instance.
