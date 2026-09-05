@@ -92,6 +92,21 @@ To bring the stack down: `./deploy.sh down`
 
 ---
 
+## Scripts
+
+| Script | Description |
+|---|---|
+| `deploy.sh` | Main orchestration script — validates config, generates certs and NGINX config, and starts the full stack. Accepts `down` to stop it. |
+| `scripts/backup.sh` | Creates a timestamped archive of wiki data and a PostgreSQL dump to the configured backup directory. |
+| `scripts/restore.sh` | Restores wiki data and database from a backup archive. |
+| `scripts/generate-certs.sh` | Generates a local CA and a signed server certificate used by NGINX for HTTPS. |
+| `scripts/nginx-conf.sh` | Generates the NGINX configuration from `.env` values. Run if the domain changes after initial setup. |
+| `scripts/ldap-conf.sh` | Configures OpenLDAP with base structure and test users. |
+| `scripts/iptables.sh` | Applies host-level firewall rules — allows port 443, restricts everything else. |
+| `scripts/docker-install.sh` | Bootstraps Docker and Docker Compose on a clean Ubuntu host. |
+
+---
+
 ## Authors
 
 - [@jandarn](https://github.com/jandarn)
