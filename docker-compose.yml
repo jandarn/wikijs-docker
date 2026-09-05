@@ -1,6 +1,6 @@
 services:
   psql:
-    image: postgres:16.11-alpine3.22
+    image: postgres:16.13-alpine3.23
     profiles: ["localdb"]
     environment:
       - POSTGRES_USER=${DB_USER}
@@ -14,7 +14,7 @@ services:
     restart: unless-stopped
 
   wikijs:
-    image: ghcr.io/requarks/wiki:2.5
+    image: ghcr.io/requarks/wiki:2.5.314
     environment:
       - DB_TYPE=${DB_TYPE}
       - DB_HOST=${DB_HOST}
@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   nginx:
-    image: nginx:stable-alpine
+    image: nginx:1.30.1-alpine3.23
     ports:
       - "80:80"
       - "443:443"
@@ -59,7 +59,7 @@ services:
     command: --copy-service
 
   phpldapadmin:
-    image: osixia/phpldapadmin:latest
+    image: osixia/phpldapadmin:0.9.0
     profiles: ["ldap"]
     environment:
       PHPLDAPADMIN_LDAP_HOSTS: ldap
@@ -73,7 +73,7 @@ services:
       - ldap
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.10.0
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -82,7 +82,7 @@ services:
     restart: unless-stopped
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.11.1
     networks:
       - monitor_network
     pid: host
@@ -97,7 +97,7 @@ services:
       - "--path.rootfs=/host/rootfs"
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
     networks:
       - monitor_network
     pid: host
@@ -109,7 +109,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
 
   postgres-exporter:
-    image: prometheuscommunity/postgres-exporter
+    image: prometheuscommunity/postgres-exporter:v0.19.1
     restart: unless-stopped
     environment:
       DATA_SOURCE_NAME: "postgresql://${DB_USER}:${DB_PASS}@psql:5432/${DB_NAME}?sslmode=disable"
@@ -117,7 +117,7 @@ services:
       - monitor_network
 
   nginx-prometheus-exporter:
-    image: nginx/nginx-prometheus-exporter:latest
+    image: nginx/nginx-prometheus-exporter:1.5.1
     restart: unless-stopped
     networks:
       monitor_network:
@@ -125,7 +125,7 @@ services:
     command: ["-nginx.scrape-uri", "http://nginx/nginx_status"]
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.0.1
     restart: unless-stopped
     networks:
       - app_network

@@ -1,137 +1,129 @@
 # wikijs-docker
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.11--alpine3.22-336791?logo=postgresql&logoColor=white)
-![Wiki.js](https://img.shields.io/badge/Wiki.js-2.5-1976D2)
-![NGINX](https://img.shields.io/badge/NGINX-stable--alpine-009639?logo=nginx&logoColor=white)
+
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.13--alpine3.23-336791?logo=postgresql&logoColor=white)
+![Wiki.js](https://img.shields.io/badge/Wiki.js-2.5.314-1976D2)
+![NGINX](https://img.shields.io/badge/NGINX-1.30.1--alpine3.23-009639?logo=nginx&logoColor=white)
 ![OpenLDAP](https://img.shields.io/badge/OpenLDAP-1.5.0-2E8B57)
-![phpLDAPadmin](https://img.shields.io/badge/phpLDAPadmin-latest-F98404)
-![Prometheus](https://img.shields.io/badge/Prometheus-latest-E6522C?logo=prometheus&logoColor=white)
-![Node Exporter](https://img.shields.io/badge/node--exporter-latest-555555)
-![cAdvisor](https://img.shields.io/badge/cAdvisor-latest-4285F4)
-![Postgres Exporter](https://img.shields.io/badge/postgres--exporter-latest-6E40C9)
-![NGINX Exporter](https://img.shields.io/badge/nginx--prometheus--exporter-latest-009639?logo=nginx&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-latest-F46800?logo=grafana&logoColor=white)
+![phpLDAPadmin](https://img.shields.io/badge/phpLDAPadmin-0.9.0-F98404)
+![Prometheus](https://img.shields.io/badge/Prometheus-v3.10.0-E6522C?logo=prometheus&logoColor=white)
+![Node Exporter](https://img.shields.io/badge/node--exporter-v1.11.1-555555)
+![cAdvisor](https://img.shields.io/badge/cAdvisor-v0.55.1-4285F4)
+![Postgres Exporter](https://img.shields.io/badge/postgres--exporter-v0.19.1-6E40C9)
+![NGINX Exporter](https://img.shields.io/badge/nginx--prometheus--exporter-1.5.1-009639?logo=nginx&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-13.0.1-F46800?logo=grafana&logoColor=white)
 
-Containerized documentation platform using Wiki.js, PostgreSQL, and NGINX. Includes HTTPS, LDAP authentication, monitoring with Prometheus and Grafana, and automated backups. Designed for secure, scalable deployment and reproducibility using Docker Compose.
+Containerized documentation platform using Wiki.js, PostgreSQL, and NGINX. Includes HTTPS with self-signed CA, optional LDAP authentication, full observability with Prometheus and Grafana, and automated backup and restore. Deployed via Docker Compose with a single orchestration script.
 
+---
 
-## Installation
-1. **Clone the repository**
+## Architecture
+
+### Components
+
+![Component diagram](docs/img/component-diagram.png)
+
+Five logical components make up the stack. NGINX is the single external entry point — Wiki.js and Grafana are never exposed directly. All HTTP traffic is redirected to HTTPS at the proxy. PostgreSQL, OpenLDAP, and the full monitoring stack (Prometheus, Node Exporter, cAdvisor, and the service exporters) sit behind it.
+
+OpenLDAP and phpLDAPadmin are optional, activated via Docker Compose profile. phpLDAPadmin is the one exception to the proxy rule — it exposes port `8081` directly on the host and is included for LDAP testing only.
+
+### Network topology
+
+![Network diagram](docs/img/network-diagram.png)
+
+The host sits in a DMZ (`192.168.70.0/24`) behind a corporate Forti router, with VPN access from the LAN (`192.168.0/23`). Docker runs three isolated bridge networks with distinct exposure profiles:
+
+- `app_network` (`172.20.0.0/24`) — the only network with outbound internet access. NGINX, Wiki.js, Grafana, and the LDAP services connect here.
+- `data_network` (`172.21.0.0/24`) — internal only. Isolates PostgreSQL; only Wiki.js crosses into it.
+- `monitor_network` (`172.22.0.0/24`) — internal only. Prometheus scrapes all exporters here with no external reach.
+
+`data_network` and `monitor_network` are declared `internal: true` — containers on these networks have no outbound internet access and are unreachable from outside the host.
+
+---
+
+## Deployment
+
+**Prerequisites:** Docker and Docker Compose. If starting from scratch on Ubuntu, run `scripts/docker-install.sh` first.
+
+**1. Clone the repository**
+
 ```bash
-git clone https://github.com/jandarn/wikijs-docker
+git clone https://github.com/jandarn/wikijs-docker.git
 cd wikijs-docker
 ```
-2. **Make deploy.sh executable**
+
+**2. Configure the environment**
+
+```bash
+cp .env.example .env
+# Edit .env — set domain, passwords, and LOCAL_DB preference
+```
+
+**3. Make the deploy script executable and run it**
+
 ```bash
 chmod +x deploy.sh
-```
-3. **Run the deployment script**
-```
 ./deploy.sh
 ```
-4. **Configure environment variables:** Once you run the *deploy.sh* script for the first time, the *.env.example* will be copied to a definitive configuration file ***.env***.
 
-The deployment script won't work if:
-```
-.env == .env.example
-```
+The script validates configuration, generates NGINX config, creates TLS certificates via `scripts/generate-certs.sh`, and brings up the full stack.
 
-5. **Run the deployment script again**
-```
-./deploy.sh
-```
-If this message appears:
-```
-Error: Docker is not installed. Please install Docker and try again.
-```
-You will need to install Docker and Docker-Compose to run the containers. You can do it via the installation script in Ubuntu:
-```
-sudo bash wikijs-docker/scripts/docker-install.sh 
-```
-Or, if you are running the infrastructure in other distribution/OS, please check the official installation docs:
-- [Docker Installation Docs](https://docs.docker.com/engine/install/)
-- [Docker Compose Plugin Installation Docs](https://docs.docker.com/compose/install)
+**4. Configure DNS**
 
+Add entries for `wiki.<domain>` and `grafana.<domain>` pointing to the host IP — either in `/etc/hosts` or via your local DNS server. Direct IP access is not allowed; NGINX only responds to the configured domain names.
 
+**5. Trust the Certificate Authority**
 
-6. Once you have Docker and Docker Compose installed, **run again the deployment script**:
+The self-signed CA is generated at `certs/ca.crt`. Import it into your OS or browser trust store to avoid certificate warnings.
+
+**6. Access the stack**
+
 ```
-deploy.sh
-```
-This script will:
-- Validate configuration files
-- Generate required configs
-- Create SSL certificates (self-signed CA) for HTTPS with NGINX
-- Run all the containers.
-
-If you want to stop the orchestration: `deploy.sh down`
-
-### Final Steps
-#### 🌐 DNS Configuration
-
-To access services, the client must resolve:
-```
-wiki.<your-domain>
-grafana.<your-domain>
+https://wiki.<your-domain>
+https://grafana.<your-domain>
 ```
 
-Both must point to the server IP. Options:
+To bring the stack down: `./deploy.sh down`
 
-- Edit */etc/hosts*
-- Or configure your *local DNS server*
+![Deploy](docs/img/deploy.png)
 
-⚠️ *Access via IP is not allowed, only via domain names.*
+### Optional features
 
-#### 🔐 Trust the Certificate Authority (CA)
-A self-signed CA is generated automatically at ***wikijs-docker/certs/ca.crt***. 
+**Local PostgreSQL** — set `LOCAL_DB=true` in `.env` to run PostgreSQL as a container within the stack. Otherwise, point the DB variables at an external instance.
 
-You must add it to your system/browser trusted store.
+**LDAP** — set `LDAP_TEST=true` to start OpenLDAP and phpLDAPadmin. For testing only.
 
-Options:
-- Add to OS trusted root CA
-- Or import it manually in each browser/device
+---
 
-⚠️ *Otherwise, HTTPS warnings will appear*
+## Design decisions
 
-### Accessing the Services
-Once you have configured the new DNS entries and added the **ca.crt** to your trusted source. You will be able to access correctly:
-```
-- https://wiki.<yourdomain>
-- https://grafana.<yourdomain>
-```
-### Additional Features
-#### Local DB: PostgreSQL
-If you want to host the data of the Wiki server directly in another container, set `LOCAL_DB` to `true` in your `.env` folder. Then target the container on the database configuration:
-```
-LOCAL_DB=true
-DB_HOST=psql
-DB_PORT=5432
-DB_TYPE=postgres
-DB_USER=wikijs
-DB_PASS=change_me
-DB_NAME=wikijs
-```
-#### LDAP server
-This system aims to be suited for corporative environments. Therefore, an LDAP authentication test is provided to check how domain users can access the different services.
+| Decision | Why | Trade-off |
+|---|---|---|
+| **Self-signed CA instead of Let's Encrypt** | The stack targets private networks without public DNS. A self-signed CA generated at deploy time works on any internal network with no external dependency or renewal process. | Clients must import the CA manually into their OS or browser trust store. Not suitable for public-facing deployments. |
+| **Three isolated Docker networks** | Separating traffic into `app_network`, `data_network`, and `monitor_network` enforces isolation at the network level. The database and monitoring stack are declared `internal: true` — they have no outbound internet access and are unreachable from outside the host. A compromised application container cannot reach the database directly from the external network. | Multi-network configuration adds complexity to service definitions; each container must be explicitly assigned to the networks it needs. |
+| **NGINX as the single entry point** | Concentrating all external traffic through a single reverse proxy simplifies TLS management, access control, and request logging. Wiki.js and Grafana expose no ports to the host — the only way in is through NGINX. When access policy changes, there is one place to update. | phpLDAPadmin is the deliberate exception: it exposes port `8081` directly on the host and is excluded from the proxy because it is a test-only tool, not part of the production access flow. |
+| **Docker Compose profiles for optional components** | Using `localdb` and `ldap` profiles keeps a single stack definition that adapts to the deployment environment. Teams with an existing PostgreSQL instance or LDAP directory can skip those containers without maintaining a separate Compose file. | Profiles add a layer of indirection — operators must know which profiles to activate for a given environment, which is not immediately obvious from the file alone. |
 
-However, is important to understand this is a **testing feature**, and is not suited for production use.
-```
-LDAP_TEST=true
-LDAP_BASE_DN=dc=netsupport,dc=dom
-LDAP_ADMIN_PASSWORD=change_me
-```
+---
+
+## Scripts
+
+| Script | Description |
+|---|---|
+| `deploy.sh` | Main orchestration script — validates config, generates certs and NGINX config, and starts the full stack. Accepts `down` to stop it. |
+| `scripts/backup.sh` | Creates a timestamped archive of wiki data and a PostgreSQL dump to the configured backup directory. |
+| `scripts/restore.sh` | Restores wiki data and database from a backup archive. |
+| `scripts/generate-certs.sh` | Generates a local CA and a signed server certificate used by NGINX for HTTPS. |
+| `scripts/nginx-conf.sh` | Generates the NGINX configuration from `.env` values. Run if the domain changes after initial setup. |
+| `scripts/ldap-conf.sh` | Configures OpenLDAP with base structure and test users. |
+| `scripts/iptables.sh` | Applies host-level firewall rules — allows port 443, restricts everything else. |
+| `scripts/docker-install.sh` | Bootstraps Docker and Docker Compose on a clean Ubuntu host. |
+
+---
+
 ## Authors
 
-- [@onyxdream](https://www.github.com/jandarn)
+- [@jandarn](https://github.com/jandarn)
 
 ## License
 
 This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
-
-You are free to:
-- Use
-- Modify
-- Distribute
-
-Under the condition that:
-- Any derivative work must also be licensed under GPL-3.0
-- Source code must be made available
