@@ -92,6 +92,17 @@ To bring the stack down: `./deploy.sh down`
 
 ---
 
+## Design decisions
+
+| Decision | Why | Trade-off |
+|---|---|---|
+| **Self-signed CA instead of Let's Encrypt** | The stack targets private networks without public DNS. A self-signed CA generated at deploy time works on any internal network with no external dependency or renewal process. | Clients must import the CA manually into their OS or browser trust store. Not suitable for public-facing deployments. |
+| **Three isolated Docker networks** | Separating traffic into `app_network`, `data_network`, and `monitor_network` enforces isolation at the network level. The database and monitoring stack are declared `internal: true` — they have no outbound internet access and are unreachable from outside the host. A compromised application container cannot reach the database directly from the external network. | Multi-network configuration adds complexity to service definitions; each container must be explicitly assigned to the networks it needs. |
+| **NGINX as the single entry point** | Concentrating all external traffic through a single reverse proxy simplifies TLS management, access control, and request logging. Wiki.js and Grafana expose no ports to the host — the only way in is through NGINX. When access policy changes, there is one place to update. | phpLDAPadmin is the deliberate exception: it exposes port `8081` directly on the host and is excluded from the proxy because it is a test-only tool, not part of the production access flow. |
+| **Docker Compose profiles for optional components** | Using `localdb` and `ldap` profiles keeps a single stack definition that adapts to the deployment environment. Teams with an existing PostgreSQL instance or LDAP directory can skip those containers without maintaining a separate Compose file. | Profiles add a layer of indirection — operators must know which profiles to activate for a given environment, which is not immediately obvious from the file alone. |
+
+---
+
 ## Scripts
 
 | Script | Description |
