@@ -18,28 +18,25 @@ Containerized documentation platform using Wiki.js, PostgreSQL, and NGINX. Inclu
 
 ## Architecture
 
-### Component overview
+### Components
 
 ![Component diagram](docs/img/component-diagram.png)
 
-The stack is split into four functional layers:
+Five logical components make up the stack. NGINX is the single external entry point — Wiki.js and Grafana are never exposed directly. All HTTP traffic is redirected to HTTPS at the proxy. PostgreSQL, OpenLDAP, and the full monitoring stack (Prometheus, Node Exporter, cAdvisor, and the service exporters) sit behind it.
 
-1. **Proxy** — NGINX handles all inbound traffic on ports 80 and 443, terminates TLS, and routes requests to Wiki.js and Grafana. The `nginx-exporter` exposes NGINX metrics at a fixed IP (`172.22.0.10`) on the monitor network.
-2. **Application** — Wiki.js serves the documentation platform. Grafana is pre-provisioned with Prometheus as datasource and dashboards loaded via bind mounts.
-3. **Authentication** — OpenLDAP and phpLDAPadmin are included for LDAP integration testing. Not intended for production use.
-4. **Data** — PostgreSQL handles persistence. Backup and restore scripts are included.
-
-The monitoring layer (Prometheus, Node Exporter, cAdvisor, Postgres Exporter, NGINX Exporter) runs on a dedicated internal network and scrapes all services every 15 seconds.
+OpenLDAP and phpLDAPadmin are optional, activated via Docker Compose profile. phpLDAPadmin is the one exception to the proxy rule — it exposes port `8081` directly on the host and is included for LDAP testing only.
 
 ### Network topology
 
 ![Network diagram](docs/img/network-diagram.png)
 
-The host sits in a DMZ (`192.168.70.0/24`) behind a corporate router with VPN access from the LAN (`192.168.0/23`). Inside the host, Docker runs three isolated bridge networks:
+The host sits in a DMZ (`192.168.70.0/24`) behind a corporate Forti router, with VPN access from the LAN (`192.168.0/23`). Docker runs three isolated bridge networks with distinct exposure profiles:
 
-- `app_network` (`172.20.0.0/24`) — connects NGINX, Wiki.js, Grafana, and the LDAP services.
-- `data_network` (`172.21.0.0/24`) — internal only. Isolates PostgreSQL and LDAP from the rest of the stack.
-- `monitor_network` (`172.22.0.0/24`) — internal only. Prometheus scrapes all exporters here; no external access.
+- `app_network` (`172.20.0.0/24`) — the only network with outbound internet access. NGINX, Wiki.js, Grafana, and the LDAP services connect here.
+- `data_network` (`172.21.0.0/24`) — internal only. Isolates PostgreSQL; only Wiki.js crosses into it.
+- `monitor_network` (`172.22.0.0/24`) — internal only. Prometheus scrapes all exporters here with no external reach.
+
+`data_network` and `monitor_network` are declared `internal: true` — containers on these networks have no outbound internet access and are unreachable from outside the host.
 
 ---
 
