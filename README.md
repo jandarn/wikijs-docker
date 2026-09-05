@@ -33,7 +33,7 @@ The monitoring layer (Prometheus, Node Exporter, cAdvisor, Postgres Exporter, NG
 
 ### Network topology
 
-![Network diagram](docs/img/fossflow-network-diagram.png)
+![Network diagram](docs/img/network-diagram.png)
 
 The host sits in a DMZ (`192.168.70.0/24`) behind a corporate router with VPN access from the LAN (`192.168.0/23`). Inside the host, Docker runs three isolated bridge networks:
 
